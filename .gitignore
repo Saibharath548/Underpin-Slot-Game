@@ -1,0 +1,49 @@
+# Unity .gitignore
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+/Data/
+.vs/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.opendb
+*.VC.db
+
+# OS Generated
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ignore non-Underpin assets from previous assignments
+/Assets/*
+!/Assets/Underpin
+!/Assets/Underpin/**
+!/Assets/Underpin.meta
+/scratch/
+*.pptx
+*.py
+*.pdf
+*.log
+Resume_*
+test_avatar.png
+photo_placeholder.png
+Arrows_Level.png
+.vsconfig
+
+# Track WebGL build deliverables
+!/Build/
+!/Build/WebGL/
+!/Build/WebGL/**
