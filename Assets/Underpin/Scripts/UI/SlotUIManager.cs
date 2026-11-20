@@ -1,0 +1,155 @@
+using System;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Underpin.SlotMachine.UI
+{
+    using Underpin.SlotMachine.Core;
+
+    /// <summary>
+    /// Primary HUD controller managing all game interface elements:
+    /// balance, current bet, last win, animated coin tickers, action buttons,
+    /// status banner, and bonus mode indicators.
+    /// </summary>
+    public class SlotUIManager : MonoBehaviour
+    {
+        [Header("Readout Texts")]
+        [SerializeField] private Text balanceText;
+        [SerializeField] private Text betText;
+        [SerializeField] private Text winText;
+        [SerializeField] private Text messageText;
+        [SerializeField] private Text freeSpinsBadgeText;
+
+        [Header("Action Buttons")]
+        [SerializeField] private Button spinButton;
+        [SerializeField] private Button betMinusButton;
+        [SerializeField] private Button betPlusButton;
+        [SerializeField] private Button autoSpinButton;
+        [SerializeField] private Button paytableButton;
+        [SerializeField] private Button resetBalanceButton;
+
+        [Header("Button Labels / Badges")]
+        [SerializeField] private Text autoSpinBadgeText;
+        [SerializeField] private GameObject freeSpinsBanner;
+
+        [Header("Modals")]
+        [SerializeField] private WinPopupView winPopupView;
+        [SerializeField] private PaytableModalView paytableModalView;
+
+        public event Action OnSpinClicked;
+        public event Action OnBetMinusClicked;
+        public event Action OnBetPlusClicked;
+        public event Action OnAutoSpinClicked;
+        public event Action OnPaytableClicked;
+        public event Action OnResetBalanceClicked;
+
+        public WinPopupView WinPopup => winPopupView;
+        public PaytableModalView PaytableModal => paytableModalView;
+
+        private Coroutine winCounterCoroutine;
+        private int displayedWinCredits = 0;
+
+        private void Awake()
+        {
+            if (spinButton != null) spinButton.onClick.AddListener(() => OnSpinClicked?.Invoke());
+            if (betMinusButton != null) betMinusButton.onClick.AddListener(() => OnBetMinusClicked?.Invoke());
+            if (betPlusButton != null) betPlusButton.onClick.AddListener(() => OnBetPlusClicked?.Invoke());
+            if (autoSpinButton != null) autoSpinButton.onClick.AddListener(() => OnAutoSpinClicked?.Invoke());
+            if (paytableButton != null) paytableButton.onClick.AddListener(() => OnPaytableClicked?.Invoke());
+            if (resetBalanceButton != null) resetBalanceButton.onClick.AddListener(() => OnResetBalanceClicked?.Invoke());
+        }
+
+        public void UpdateBalance(int balance)
+        {
+            if (balanceText != null)
+                balanceText.text = balance.ToString("N0");
+        }
+
+        public void UpdateBet(int bet)
+        {
+            if (betText != null)
+                betText.text = bet.ToString("N0");
+        }
+
+        public void UpdateWin(int win, bool animate = true)
+        {
+            if (winCounterCoroutine != null)
+            {
+                StopCoroutine(winCounterCoroutine);
+                winCounterCoroutine = null;
+            }
+
+            if (!animate || win == 0)
+            {
+                displayedWinCredits = win;
+                if (winText != null)
+                    winText.text = win > 0 ? win.ToString("N0") : "0";
+            }
+            else
+            {
+                winCounterCoroutine = StartCoroutine(AnimateWinCounter(displayedWinCredits, win, 1.0f));
+            }
+        }
+
+        public void SetMessage(string message)
+        {
+            if (messageText != null)
+                messageText.text = message;
+        }
+
+        public void SetAutoSpinState(bool isAutoSpinning, int remainingSpins = 0)
+        {
+            if (autoSpinBadgeText != null)
+            {
+                autoSpinBadgeText.text = isAutoSpinning ? $"AUTO ({remainingSpins})" : "AUTO";
+                autoSpinBadgeText.color = isAutoSpinning ? Color.green : Color.white;
+            }
+        }
+
+        public void SetFreeSpinsState(bool isFreeSpinsActive, int remainingSpins = 0, int multiplier = 1)
+        {
+            if (freeSpinsBanner != null)
+                freeSpinsBanner.SetActive(isFreeSpinsActive);
+
+            if (freeSpinsBadgeText != null)
+            {
+                freeSpinsBadgeText.text = isFreeSpinsActive
+                    ? $"FREE SPINS: {remainingSpins} (x{multiplier})"
+                    : "";
+            }
+        }
+
+        public void SetSpinInteractable(bool interactable)
+        {
+            if (spinButton != null)
+                spinButton.interactable = interactable;
+
+            if (betMinusButton != null)
+                betMinusButton.interactable = interactable;
+
+            if (betPlusButton != null)
+                betPlusButton.interactable = interactable;
+        }
+
+        private IEnumerator AnimateWinCounter(int startValue, int endValue, float duration)
+        {
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                int current = Mathf.RoundToInt(Mathf.Lerp(startValue, endValue, t));
+                displayedWinCredits = current;
+                if (winText != null)
+                    winText.text = current.ToString("N0");
+                yield return null;
+            }
+
+            displayedWinCredits = endValue;
+            if (winText != null)
+                winText.text = endValue.ToString("N0");
+            winCounterCoroutine = null;
+        }
+    }
+}
