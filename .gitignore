@@ -27,22 +27,6 @@
 Thumbs.db
 desktop.ini
 
-# Ignore non-Underpin assets from previous assignments
-/Assets/*
-!/Assets/Underpin
-!/Assets/Underpin/**
-!/Assets/Underpin.meta
-/scratch/
-*.pptx
-*.py
-*.pdf
-*.log
-Resume_*
-test_avatar.png
-photo_placeholder.png
-Arrows_Level.png
-.vsconfig
-
 # Track WebGL build deliverables
 !/Build/
 !/Build/WebGL/
