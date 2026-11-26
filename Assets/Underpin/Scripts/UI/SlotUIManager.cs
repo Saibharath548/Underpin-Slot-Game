@@ -78,6 +78,113 @@ namespace Underpin.SlotMachine.UI
             if (autoSpinButton != null) autoSpinButton.onClick.AddListener(() => OnAutoSpinClicked?.Invoke());
             if (paytableButton != null) paytableButton.onClick.AddListener(() => OnPaytableClicked?.Invoke());
             if (resetBalanceButton != null) resetBalanceButton.onClick.AddListener(() => OnResetBalanceClicked?.Invoke());
+
+            CreateHowToPlayOverlay();
+        }
+
+        private void CreateHowToPlayOverlay()
+        {
+            // Runtime-created so existing scenes receive the help screen without manual Inspector wiring.
+            Transform canvasRoot = transform;
+            GameObject helpButtonObject = new GameObject("Btn_HowToPlay", typeof(RectTransform), typeof(Image), typeof(Button));
+            helpButtonObject.transform.SetParent(canvasRoot, false);
+            RectTransform helpRect = helpButtonObject.GetComponent<RectTransform>();
+            helpRect.anchorMin = new Vector2(0f, 1f);
+            helpRect.anchorMax = new Vector2(0f, 1f);
+            helpRect.pivot = new Vector2(0f, 1f);
+            helpRect.anchoredPosition = new Vector2(28f, -24f);
+            helpRect.sizeDelta = new Vector2(190f, 52f);
+            Image helpImage = helpButtonObject.GetComponent<Image>();
+            helpImage.color = new Color(0.12f, 0.20f, 0.38f, 1f);
+            Button helpButton = helpButtonObject.GetComponent<Button>();
+            ConfigureButtonFeedback(helpButton, new Color(0.34f, 0.78f, 0.95f));
+            CreateOverlayText(helpButtonObject.transform, "HOW TO PLAY", 18, FontStyle.Bold, Color.white, Vector2.zero, new Vector2(180f, 48f));
+
+            GameObject overlay = new GameObject("HowToPlayOverlay", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
+            overlay.transform.SetParent(canvasRoot, false);
+            RectTransform overlayRect = overlay.GetComponent<RectTransform>();
+            overlayRect.anchorMin = Vector2.zero;
+            overlayRect.anchorMax = Vector2.one;
+            overlayRect.offsetMin = Vector2.zero;
+            overlayRect.offsetMax = Vector2.zero;
+            Image dim = overlay.GetComponent<Image>();
+            dim.color = new Color(0.015f, 0.02f, 0.06f, 0.82f);
+            CanvasGroup group = overlay.GetComponent<CanvasGroup>();
+            group.alpha = 0f;
+            group.interactable = false;
+            group.blocksRaycasts = false;
+
+            GameObject panel = new GameObject("HowToPlayPanel", typeof(RectTransform), typeof(Image));
+            panel.transform.SetParent(overlay.transform, false);
+            RectTransform panelRect = panel.GetComponent<RectTransform>();
+            panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+            panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+            panelRect.sizeDelta = new Vector2(790f, 650f);
+            Image panelImage = panel.GetComponent<Image>();
+            panelImage.color = new Color(0.08f, 0.10f, 0.20f, 1f);
+
+            CreateOverlayText(panel.transform, "HOW TO PLAY", 38, FontStyle.Bold, new Color(1f, 0.82f, 0.22f), new Vector2(0f, 265f), new Vector2(700f, 58f));
+            string instructions =
+                "1. SET YOUR BET  -  Use the  -  and  +  buttons to choose your wager.\\n\\n" +
+                "2. SPIN  -  Press the large SPIN button. Your bet is deducted before the reels roll.\\n\\n" +
+                "3. MATCH SYMBOLS  -  Matching symbols on an active payline award credits. Open PAYTABLE to see every payout.\\n\\n" +
+                "4. TRACK YOUR CREDITS  -  BALANCE is your available credits; WIN shows the latest payout.\\n\\n" +
+                "5. AUTO SPIN  -  Press AUTO to start repeated spins. Press it again to stop.\\n\\n" +
+                "6. BIG WIN  -  COLLECT keeps the prize. DOUBLE UP risks that prize in a 50/50 double-or-nothing gamble.";
+            CreateOverlayText(panel.transform, instructions, 22, FontStyle.Normal, Color.white, new Vector2(0f, -5f), new Vector2(680f, 440f));
+
+            GameObject closeObject = new GameObject("Btn_CloseHowToPlay", typeof(RectTransform), typeof(Image), typeof(Button));
+            closeObject.transform.SetParent(panel.transform, false);
+            RectTransform closeRect = closeObject.GetComponent<RectTransform>();
+            closeRect.anchorMin = new Vector2(0.5f, 0f);
+            closeRect.anchorMax = new Vector2(0.5f, 0f);
+            closeRect.pivot = new Vector2(0.5f, 0f);
+            closeRect.anchoredPosition = new Vector2(0f, 24f);
+            closeRect.sizeDelta = new Vector2(220f, 58f);
+            closeObject.GetComponent<Image>().color = new Color(0.55f, 0.32f, 0.08f, 1f);
+            Button closeButton = closeObject.GetComponent<Button>();
+            ConfigureButtonFeedback(closeButton, new Color(1f, 0.78f, 0.24f));
+            CreateOverlayText(closeObject.transform, "GOT IT", 20, FontStyle.Bold, Color.white, Vector2.zero, new Vector2(210f, 54f));
+
+            helpButton.onClick.AddListener(() =>
+            {
+                overlay.transform.SetAsLastSibling();
+                group.alpha = 1f;
+                group.interactable = true;
+                group.blocksRaycasts = true;
+            });
+            closeButton.onClick.AddListener(() =>
+            {
+                group.alpha = 0f;
+                group.interactable = false;
+                group.blocksRaycasts = false;
+            });
+            overlay.SetActive(false);
+            helpButton.onClick.AddListener(() => overlay.SetActive(true));
+        }
+
+        private static Text CreateOverlayText(Transform parent, string value, int fontSize, FontStyle style, Color color, Vector2 position, Vector2 size)
+        {
+            GameObject textObject = new GameObject("Text", typeof(RectTransform), typeof(Text));
+            textObject.transform.SetParent(parent, false);
+            RectTransform rect = textObject.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            Text text = textObject.GetComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (text.font == null) text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.text = value;
+            text.fontSize = fontSize;
+            text.fontStyle = style;
+            text.color = color;
+            text.alignment = fontSize >= 30 ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.lineSpacing = 1.15f;
+            text.raycastTarget = false;
+            return text;
         }
 
         private static void ConfigureButtonFeedback(Button button, Color accent)
