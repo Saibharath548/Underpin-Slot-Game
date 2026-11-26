@@ -2483,7 +2483,7 @@ MonoBehaviour:
   audioManager: {fileID: 491785213}
   initialBalance: 1000
   betLevels: 0a000000140000003200000064000000c8000000f4010000i
-  activePaylines: 5
+  activePaylines: 1
   baseSpinDuration: 0.8
   reelStopDelay: 0.35
   anticipationDelay: 0.8
