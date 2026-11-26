@@ -131,20 +131,20 @@ namespace Underpin.SlotMachine.UI
                     dockRect.anchorMin = new Vector2(0.5f, 0f);
                     dockRect.anchorMax = new Vector2(0.5f, 0f);
                     dockRect.pivot = new Vector2(0.5f, 0f);
-                    dockRect.sizeDelta = new Vector2(1160f, 145f);
-                    dockRect.anchoredPosition = new Vector2(0f, 34f);
+                    dockRect.sizeDelta = new Vector2(1160f, 185f);
+                    dockRect.anchoredPosition = new Vector2(0f, 20f);
                     Image dockImage = dock.GetComponent<Image>();
                     dockImage.color = new Color(0.035f, 0.05f, 0.105f, 0.96f);
                     dockImage.raycastTarget = false;
                 }
 
-                SetChildRect(hud, "BalanceBox", new Vector2(-420f, 105f), new Vector2(190f, 92f));
-                SetChildRect(hud, "Btn_BetMinus", new Vector2(-245f, 105f), new Vector2(64f, 64f));
-                SetChildRect(hud, "BetBox", new Vector2(-130f, 105f), new Vector2(130f, 92f));
-                SetChildRect(hud, "Btn_BetPlus", new Vector2(-20f, 105f), new Vector2(64f, 64f));
-                SetChildRect(hud, "WinBox", new Vector2(145f, 105f), new Vector2(180f, 92f));
-                SetChildRect(hud, "Btn_Spin", new Vector2(365f, 105f), new Vector2(126f, 126f));
-                SetChildRect(hud, "Btn_AutoSpin", new Vector2(505f, 105f), new Vector2(100f, 64f));
+                SetChildRect(hud, "BalanceBox", new Vector2(-420f, 110f), new Vector2(190f, 92f));
+                SetChildRect(hud, "Btn_BetMinus", new Vector2(-245f, 110f), new Vector2(64f, 64f));
+                SetChildRect(hud, "BetBox", new Vector2(-130f, 110f), new Vector2(130f, 92f));
+                SetChildRect(hud, "Btn_BetPlus", new Vector2(-20f, 110f), new Vector2(64f, 64f));
+                SetChildRect(hud, "WinBox", new Vector2(145f, 110f), new Vector2(180f, 92f));
+                SetChildRect(hud, "Btn_Spin", new Vector2(365f, 110f), new Vector2(126f, 126f));
+                SetChildRect(hud, "Btn_AutoSpin", new Vector2(505f, 110f), new Vector2(100f, 64f));
             }
 
             PlaceTopButton(paytableButton, new Vector2(220f, -24f), new Vector2(160f, 54f), false);
@@ -195,7 +195,7 @@ namespace Underpin.SlotMachine.UI
             if (rect == null) return;
             rect.anchorMin = new Vector2(0.5f, 0f);
             rect.anchorMax = new Vector2(0.5f, 0f);
-            rect.pivot = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = position;
             rect.sizeDelta = size;
         }
