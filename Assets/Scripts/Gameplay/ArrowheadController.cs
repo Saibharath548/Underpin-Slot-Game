@@ -76,8 +76,10 @@ namespace Arrows.Gameplay
             meshFilter.mesh = ArrowheadMeshFactory.GetMesh();
 
             // Set up material (Sprites/Default works with URP 2D)
-            meshRenderer.material = new Material(Shader.Find("Sprites/Default"));
-            meshRenderer.material.color = baseColor;
+            // Create one unique material for this arrowhead, then access it through sharedMaterial.
+            // This avoids implicit material instantiation from MeshRenderer.material in Edit Mode.
+            meshRenderer.sharedMaterial = new Material(Shader.Find("Sprites/Default"));
+            meshRenderer.sharedMaterial.color = baseColor;
             meshRenderer.sortingOrder = 1;
 
             // Configure CircleCollider2D to match collisionRadius in world units
@@ -135,9 +137,9 @@ namespace Arrows.Gameplay
         {
             isInteractable = interactable;
 
-            if (meshRenderer != null && meshRenderer.material != null)
+            if (meshRenderer != null && meshRenderer.sharedMaterial != null)
             {
-                meshRenderer.material.color = baseColor;
+                meshRenderer.sharedMaterial.color = baseColor;
             }
 
             // Disable collider so raycasts skip it
@@ -174,12 +176,12 @@ namespace Arrows.Gameplay
 
             if (highlighted)
             {
-                meshRenderer.material.color = Color.white;
+                meshRenderer.sharedMaterial.color = Color.white;
                 transform.localScale *= 1.3f;
             }
             else
             {
-                meshRenderer.material.color = baseColor;
+                meshRenderer.sharedMaterial.color = baseColor;
             }
         }
 
