@@ -2478,7 +2478,7 @@ MonoBehaviour:
   - {fileID: 613117914}
   - {fileID: 1626697167}
   - {fileID: 243384768}
-  leverView: {fileID: 1498988742}
+  leverView: {fileID: 0}
   uiManager: {fileID: 1466070685}
   audioManager: {fileID: 491785213}
   initialBalance: 1000
@@ -4595,8 +4595,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.037, y: 3.352}
-  m_SizeDelta: {x: 522.8776, y: 268.1756}
+  m_AnchoredPosition: {x: -0.7604, y: 3.352}
+  m_SizeDelta: {x: 575.4399, y: 283.6676}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1532649455
 MonoBehaviour:
@@ -4974,8 +4974,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 7.74, y: -36.7}
-  m_SizeDelta: {x: 658, y: 452.2}
+  m_AnchoredPosition: {x: 6.0381, y: -40.3002}
+  m_SizeDelta: {x: 723.4106, y: 476.2108}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1799770201
 MonoBehaviour:
