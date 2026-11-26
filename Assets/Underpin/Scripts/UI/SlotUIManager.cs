@@ -52,20 +52,7 @@ namespace Underpin.SlotMachine.UI
 
         private void Awake()
         {
-            // A zero-scale root makes every control invisible and prevents raycasts.
-            // Keep the HUD usable even if a scene is regenerated with bad transform data.
-            transform.localScale = Vector3.one;
             EnsureSingleAudioListener();
-            ApplyVisualLayout();
-
-            CanvasScaler scaler = GetComponent<CanvasScaler>();
-            if (scaler != null)
-            {
-                scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-                scaler.referenceResolution = new Vector2(1920f, 1080f);
-                scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-                scaler.matchWidthOrHeight = 0.5f;
-            }
 
             ConfigureButtonFeedback(spinButton, new Color(1f, 0.78f, 0.24f));
             ConfigureButtonFeedback(betMinusButton, new Color(0.34f, 0.78f, 0.95f));
@@ -73,10 +60,6 @@ namespace Underpin.SlotMachine.UI
             ConfigureButtonFeedback(autoSpinButton, new Color(0.30f, 0.82f, 0.60f));
             ConfigureButtonFeedback(paytableButton, new Color(0.34f, 0.78f, 0.95f));
             ConfigureButtonFeedback(resetBalanceButton, new Color(0.95f, 0.55f, 0.35f));
-
-            // Keep the top utility controls readable at the reference resolution.
-            ResizeTopButton(paytableButton, new Vector2(160f, 54f));
-            ResizeTopButton(resetBalanceButton, new Vector2(130f, 54f));
 
             if (spinButton != null) spinButton.onClick.AddListener(() => OnSpinClicked?.Invoke());
             if (betMinusButton != null) betMinusButton.onClick.AddListener(() => OnBetMinusClicked?.Invoke());
