@@ -101,9 +101,10 @@ namespace Underpin.SlotMachine.Reels
             // Position symbols vertically centered around the window:
             // Visible rows (0=Top, 1=Center, 2=Bottom) at Y = +CellStep, 0, -CellStep
             // Buffer symbols at Y = +2*CellStep and -2*CellStep
+            float[] initialOffsets = new float[] { CellStep, 0f, -CellStep, 2f * CellStep, -2f * CellStep };
             for (int i = 0; i < symbolViews.Count; i++)
             {
-                float targetY = (1 - i) * CellStep;
+                float targetY = i < initialOffsets.Length ? initialOffsets[i] : (1 - i) * CellStep;
                 symbolViews[i].RectTransform.anchoredPosition = new Vector2(0f, targetY);
                 symbolViews[i].RectTransform.sizeDelta = new Vector2(symbolHeight, symbolHeight);
 
