@@ -140,7 +140,7 @@ namespace Underpin.SlotMachine.Editor
             // Reels Mask Window
             GameObject reelsWindowGo = CreateUIObject("ReelsMaskWindow", middleBoxGo.transform);
             RectTransform reelsWindowRect = reelsWindowGo.GetComponent<RectTransform>();
-            reelsWindowRect.sizeDelta = new Vector2(490, 240);
+            reelsWindowRect.sizeDelta = new Vector2(490, 190);
             reelsWindowRect.anchoredPosition = Vector2.zero;
             reelsWindowGo.AddComponent<RectMask2D>();
 
@@ -169,7 +169,7 @@ namespace Underpin.SlotMachine.Editor
             {
                 GameObject reelColGo = CreateUIObject($"ReelColumn_{r}", reelsWindowGo.transform);
                 RectTransform reelColRect = reelColGo.GetComponent<RectTransform>();
-                reelColRect.sizeDelta = new Vector2(110, 240);
+                reelColRect.sizeDelta = new Vector2(110, 190);
                 reelColRect.anchoredPosition = new Vector2(reelXPositions[r], 0);
 
                 ReelStripController reelCtrl = reelColGo.AddComponent<ReelStripController>();
