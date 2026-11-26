@@ -287,11 +287,13 @@ namespace Underpin.SlotMachine.Core
                 uiManager?.SetMessage(winMsg);
 
                 // Big Win or Jackpot Modal Popup
-                if (lastSpinResult.Grade == WinGrade.Jackpot || lastSpinResult.Grade == WinGrade.BigWin)
+                // Reserve the blocking gamble popup for the actual Lucky Seven jackpot.
+                // High-value symbol wins such as 3 Golden Bells should complete normally
+                // so the regular HUD controls are restored after the celebration delay.
+                if (lastSpinResult.IsJackpot || lastSpinResult.Grade == WinGrade.Jackpot)
                 {
                     pendingGambleWin = lastSpinResult.TotalPayoutCredits;
-                    string popupTitle = lastSpinResult.IsJackpot ? "JACKPOT!" : "BIG WIN!";
-                    uiManager?.WinPopup?.Show(popupTitle, lastSpinResult.TotalPayoutCredits.ToString("N0") + " CREDITS", "CONGRATULATIONS!", allowGamble: true);
+                    uiManager?.WinPopup?.Show("JACKPOT!", lastSpinResult.TotalPayoutCredits.ToString("N0") + " CREDITS", "CONGRATULATIONS!", allowGamble: true);
                     currentState = SlotState.PopupOpen;
                     yield break;
                 }
