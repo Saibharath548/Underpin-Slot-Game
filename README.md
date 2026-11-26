@@ -130,6 +130,16 @@ Assets/Underpin/
     └── SlotMachineScene.unity        # Main game scene
 ```
 
+### Thought Process & Development Approach
+
+I approached the project by separating the slot machine into three main concerns:
+
+1. **Game rules first:** define the symbols, paylines, paytable, random outcome generation, and win evaluation independently from the presentation.
+2. **Reusable presentation systems:** build reel strips, symbol views, UI controllers, audio feedback, and reusable prefabs around those rules. Keep reel movement and stopping behavior independent of the UI layout.
+3. **Verification and delivery:** add repeatable RNG and payout checks, then create a WebGL build so the game can be run in a browser without opening the Unity Editor.
+
+The goal was to make each system easier to inspect and change without coupling the game rules to scene objects. The project keeps its implementation grouped under `Assets/Underpin/` to keep this assignment's content together.
+
 ### Highlights of Technical Execution
 - **Decoupled Business Logic**: `WinEvaluator` and `SlotRNGService` are pure C# classes without `UnityEngine.Object` dependencies. This allows unit testing and headless Monte Carlo verification without opening scenes or running game loops.
 - **Frame-Rate Independent Physics**: Reel spinning, speed damping, and harmonic spring bounce logic use analytical time differential equations rather than coroutine frame waits, guaranteeing buttery smooth 60fps / 120fps motion on WebGL across varying browser refresh rates.
