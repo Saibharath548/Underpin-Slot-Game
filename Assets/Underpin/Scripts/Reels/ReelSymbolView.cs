@@ -53,6 +53,8 @@ namespace Underpin.SlotMachine.Reels
             if (symbolImage != null)
             {
                 symbolImage.sprite = sprite;
+                symbolImage.preserveAspect = true;
+                symbolImage.raycastTarget = false;
                 symbolImage.enabled = (sprite != null);
             }
             ResetHighlight();
