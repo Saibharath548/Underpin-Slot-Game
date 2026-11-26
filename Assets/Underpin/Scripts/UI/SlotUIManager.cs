@@ -52,12 +52,46 @@ namespace Underpin.SlotMachine.UI
 
         private void Awake()
         {
+            // A zero-scale root makes every control invisible and prevents raycasts.
+            // Keep the HUD usable even if a scene is regenerated with bad transform data.
+            transform.localScale = Vector3.one;
+
+            CanvasScaler scaler = GetComponent<CanvasScaler>();
+            if (scaler != null)
+            {
+                scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                scaler.referenceResolution = new Vector2(1920f, 1080f);
+                scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+                scaler.matchWidthOrHeight = 0.5f;
+            }
+
+            ConfigureButtonFeedback(spinButton, new Color(1f, 0.78f, 0.24f));
+            ConfigureButtonFeedback(betMinusButton, new Color(0.34f, 0.78f, 0.95f));
+            ConfigureButtonFeedback(betPlusButton, new Color(0.34f, 0.78f, 0.95f));
+            ConfigureButtonFeedback(autoSpinButton, new Color(0.30f, 0.82f, 0.60f));
+            ConfigureButtonFeedback(paytableButton, new Color(0.34f, 0.78f, 0.95f));
+            ConfigureButtonFeedback(resetBalanceButton, new Color(0.95f, 0.55f, 0.35f));
+
             if (spinButton != null) spinButton.onClick.AddListener(() => OnSpinClicked?.Invoke());
             if (betMinusButton != null) betMinusButton.onClick.AddListener(() => OnBetMinusClicked?.Invoke());
             if (betPlusButton != null) betPlusButton.onClick.AddListener(() => OnBetPlusClicked?.Invoke());
             if (autoSpinButton != null) autoSpinButton.onClick.AddListener(() => OnAutoSpinClicked?.Invoke());
             if (paytableButton != null) paytableButton.onClick.AddListener(() => OnPaytableClicked?.Invoke());
             if (resetBalanceButton != null) resetBalanceButton.onClick.AddListener(() => OnResetBalanceClicked?.Invoke());
+        }
+
+        private static void ConfigureButtonFeedback(Button button, Color accent)
+        {
+            if (button == null) return;
+
+            ColorBlock colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = Color.Lerp(Color.white, accent, 0.22f);
+            colors.pressedColor = Color.Lerp(accent, Color.black, 0.12f);
+            colors.selectedColor = colors.highlightedColor;
+            colors.disabledColor = new Color(0.55f, 0.58f, 0.64f, 0.55f);
+            colors.fadeDuration = 0.12f;
+            button.colors = colors;
         }
 
         public void UpdateBalance(int balance)
