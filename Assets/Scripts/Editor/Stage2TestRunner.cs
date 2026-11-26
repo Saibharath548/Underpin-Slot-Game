@@ -175,7 +175,7 @@ namespace Arrows.Editor
             }
 
             // Invoke CompleteLine using reflection
-            var completeMethod = typeof(LineController).GetMethod("CompleteLine", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var completeMethod = typeof(LineController).GetMethod("CompleteLine", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (completeMethod == null)
             {
                 Debug.LogError("[Stage 2 Verification] FAILED Criterion 4: Could not find CompleteLine method on LineController.");
