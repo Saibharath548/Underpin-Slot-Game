@@ -27,11 +27,13 @@ namespace Underpin.SlotMachine.UI
         public event Action OnGambleClicked;
 
         private Coroutine animCoroutine;
+        private Vector3 panelBaseScale = Vector3.one;
 
         private void Awake()
         {
             if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
             if (panelRect == null) panelRect = GetComponent<RectTransform>();
+            if (panelRect != null) panelBaseScale = panelRect.localScale;
 
             if (collectButton != null)
                 collectButton.onClick.AddListener(() => OnCollectClicked?.Invoke());
@@ -107,6 +109,7 @@ namespace Underpin.SlotMachine.UI
 
         public void HideImmediate()
         {
+            if (panelRect != null) panelRect.localScale = panelBaseScale;
             if (canvasGroup != null)
             {
                 canvasGroup.alpha = 0f;
@@ -136,12 +139,12 @@ namespace Underpin.SlotMachine.UI
 
                 // Elastic scale-pop: 0.3 -> 1.08 -> 1.0
                 float scale = EaseOutBack(t);
-                if (panelRect != null) panelRect.localScale = Vector3.one * scale;
+                if (panelRect != null) panelRect.localScale = panelBaseScale * scale;
 
                 yield return null;
             }
 
-            if (panelRect != null) panelRect.localScale = Vector3.one;
+            if (panelRect != null) panelRect.localScale = panelBaseScale;
             if (canvasGroup != null) canvasGroup.alpha = 1f;
             animCoroutine = null;
         }
@@ -156,7 +159,7 @@ namespace Underpin.SlotMachine.UI
                 elapsed += Time.deltaTime;
                 float t = elapsed / duration;
                 if (canvasGroup != null) canvasGroup.alpha = 1f - t;
-                if (panelRect != null) panelRect.localScale = Vector3.one * (1f - t * 0.3f);
+                if (panelRect != null) panelRect.localScale = panelBaseScale * (1f - t * 0.3f);
                 yield return null;
             }
 
