@@ -95,6 +95,7 @@ namespace Underpin.SlotMachine.Editor
             // 3. Canvas
             GameObject canvasGo = new GameObject("SlotCanvas");
             Canvas canvas = canvasGo.AddComponent<Canvas>();
+            canvasGo.transform.localScale = Vector3.one;
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
