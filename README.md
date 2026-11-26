@@ -65,6 +65,18 @@ Payout multipliers are applied to the bet allocated per active payline. The conf
 
 ---
 
+## Thought Process & Approach
+
+I approached the project by first breaking down the slot machine into its core systems: symbol generation, reel movement, win evaluation, betting, and UI interaction.
+
+I kept the game logic separate from the presentation so that reel outcomes could be generated and evaluated independently of their animations. The paytable stores the symbol weights and payout rules, while the win evaluator checks the resulting grid against the active paylines.
+
+I then integrated the UI, audio feedback, and bonus features around the core gameplay loop. Throughout development, I tested the mechanics and adjusted the implementation to address issues discovered during integration.
+
+AI tools were used extensively as development assistance for implementation, debugging, and code review, with the generated work reviewed and integrated into the project.
+
+---
+
 ## Project structure
 
 The main project content is grouped under `Assets/Underpin/`.
