@@ -57,6 +57,10 @@ namespace Underpin.SlotMachine.Reels
             this.rng = rngService;
             this.spriteMap = sprites;
 
+            // Fit all three complete symbols inside the cabinet's reel window.
+            symbolHeight = 72f;
+            symbolSpacing = 8f;
+
             if (containerRect == null)
             {
                 containerRect = GetComponent<RectTransform>();
