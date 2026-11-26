@@ -55,6 +55,7 @@ namespace Underpin.SlotMachine.UI
             // A zero-scale root makes every control invisible and prevents raycasts.
             // Keep the HUD usable even if a scene is regenerated with bad transform data.
             transform.localScale = Vector3.one;
+            EnsureSingleAudioListener();
 
             CanvasScaler scaler = GetComponent<CanvasScaler>();
             if (scaler != null)
@@ -84,6 +85,28 @@ namespace Underpin.SlotMachine.UI
             if (resetBalanceButton != null) resetBalanceButton.onClick.AddListener(() => OnResetBalanceClicked?.Invoke());
 
             CreateHowToPlayOverlay();
+        }
+
+        private static void EnsureSingleAudioListener()
+        {
+            AudioListener[] listeners = FindObjectsOfType<AudioListener>();
+            AudioListener keeper = null;
+            Camera mainCamera = Camera.main;
+
+            if (mainCamera != null)
+                keeper = mainCamera.GetComponent<AudioListener>();
+
+            if (keeper == null && listeners.Length > 0)
+                keeper = listeners[0];
+
+            if (keeper == null && mainCamera != null)
+                keeper = mainCamera.gameObject.AddComponent<AudioListener>();
+
+            for (int i = 0; i < listeners.Length; i++)
+            {
+                if (listeners[i] != null && listeners[i] != keeper)
+                    listeners[i].enabled = false;
+            }
         }
 
         private static void ResizeTopButton(Button button, Vector2 size)
@@ -178,9 +201,23 @@ namespace Underpin.SlotMachine.UI
                 group.alpha = 0f;
                 group.interactable = false;
                 group.blocksRaycasts = false;
+                PlayerPrefs.SetInt("Underpin_Slot_HelpSeen", 1);
             });
             overlay.SetActive(false);
-            helpButton.onClick.AddListener(() => overlay.SetActive(true));
+            helpButton.onClick.AddListener(() =>
+            {
+                overlay.SetActive(true);
+                overlay.transform.SetAsLastSibling();
+            });
+
+            // Show the guide automatically on the first visit; the help button remains available later.
+            if (PlayerPrefs.GetInt("Underpin_Slot_HelpSeen", 0) == 0)
+            {
+                overlay.SetActive(true);
+                group.alpha = 1f;
+                group.interactable = true;
+                group.blocksRaycasts = true;
+            }
         }
 
         private static Text CreateOverlayText(Transform parent, string value, int fontSize, FontStyle style, Color color, Vector2 position, Vector2 size)
