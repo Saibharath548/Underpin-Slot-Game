@@ -98,10 +98,19 @@ namespace Underpin.SlotMachine.Reels
                 symbolViews.Add(view);
             }
 
-            // Center the configured visible rows and place extra views in alternating buffer rows.
+            // Keep exactly three symbols in the visible window and place the remaining
+            // views outside it as scroll buffers. Every view uses the same centered pivot.
+            visibleRowCount = Mathf.Max(1, visibleRowCount);
+            totalSymbolViews = Mathf.Max(visibleRowCount + 2, totalSymbolViews);
             float halfVisibleRows = (visibleRowCount - 1) * 0.5f;
             for (int i = 0; i < symbolViews.Count; i++)
             {
+                RectTransform symbolRect = symbolViews[i].RectTransform;
+                symbolRect.anchorMin = new Vector2(0.5f, 0.5f);
+                symbolRect.anchorMax = new Vector2(0.5f, 0.5f);
+                symbolRect.pivot = new Vector2(0.5f, 0.5f);
+                symbolRect.localScale = Vector3.one;
+
                 float targetY;
                 if (i < visibleRowCount)
                 {
@@ -114,8 +123,9 @@ namespace Underpin.SlotMachine.Reels
                     targetY = (halfVisibleRows + bufferRing) * CellStep;
                     if (bufferIndex % 2 == 1) targetY = -targetY;
                 }
-                symbolViews[i].RectTransform.anchoredPosition = new Vector2(0f, targetY);
-                symbolViews[i].RectTransform.sizeDelta = new Vector2(symbolHeight, symbolHeight);
+
+                symbolRect.anchoredPosition = new Vector2(0f, targetY);
+                symbolRect.sizeDelta = new Vector2(symbolHeight, symbolHeight);
 
                 SymbolId initialSym = (rng != null && paytable != null) ? rng.GetRandomSymbol(paytable) : (SymbolId)(i % 4);
                 Sprite spr = spriteMap.ContainsKey(initialSym) ? spriteMap[initialSym] : null;
@@ -221,19 +231,17 @@ namespace Underpin.SlotMachine.Reels
         /// </summary>
         private IEnumerator SettleOutcomeRoutine()
         {
-            // Inject the 3 target symbols into the 3 visible views:
-            // View 0 = Top (+CellStep)
-            // View 1 = Center (0)
-            // View 2 = Bottom (-CellStep)
-            // View 3 = Top Buffer (+2*CellStep)
-            // View 4 = Bottom Buffer (-2*CellStep)
+            // Inject the final top, centre and bottom symbols into the three visible rows.
+            // Buffer views remain outside the clipped window.
             if (targetSymbols != null && targetSymbols.Length >= 3)
             {
-                SetViewSymbol(0, targetSymbols[0]); // Top
-                SetViewSymbol(1, targetSymbols[1]); // Center
-                SetViewSymbol(2, targetSymbols[2]); // Bottom
-                SetViewSymbol(3, (SymbolId)(((int)targetSymbols[0] + 1) % 4));
-                SetViewSymbol(4, (SymbolId)(((int)targetSymbols[2] + 2) % 4));
+                SetViewSymbol(0, targetSymbols[0]);
+                SetViewSymbol(1, targetSymbols[1]);
+                SetViewSymbol(2, targetSymbols[2]);
+                if (symbolViews.Count > 3)
+                    SetViewSymbol(3, (SymbolId)(((int)targetSymbols[0] + 1) % 4));
+                if (symbolViews.Count > 4)
+                    SetViewSymbol(4, (SymbolId)(((int)targetSymbols[2] + 2) % 4));
             }
 
             // Step 1: Overshoot downwards past the center rest position
@@ -277,15 +285,22 @@ namespace Underpin.SlotMachine.Reels
 
         private void ApplyReelRestPositions(float offset)
         {
-            // View 0 = Top (+CellStep)
-            // View 1 = Center (0)
-            // View 2 = Bottom (-CellStep)
-            // View 3 = Upper Buffer (+2*CellStep)
-            // View 4 = Lower Buffer (-2*CellStep)
-            float[] baseOffsets = new float[] { CellStep, 0f, -CellStep, 2f * CellStep, -2f * CellStep };
-            for (int i = 0; i < symbolViews.Count && i < baseOffsets.Length; i++)
+            float halfVisibleRows = (visibleRowCount - 1) * 0.5f;
+            for (int i = 0; i < symbolViews.Count; i++)
             {
-                symbolViews[i].RectTransform.anchoredPosition = new Vector2(0f, baseOffsets[i] + offset);
+                float baseY;
+                if (i < visibleRowCount)
+                {
+                    baseY = (halfVisibleRows - i) * CellStep;
+                }
+                else
+                {
+                    int bufferIndex = i - visibleRowCount;
+                    int bufferRing = 1 + bufferIndex / 2;
+                    baseY = (halfVisibleRows + bufferRing) * CellStep;
+                    if (bufferIndex % 2 == 1) baseY = -baseY;
+                }
+                symbolViews[i].RectTransform.anchoredPosition = new Vector2(0f, baseY + offset);
             }
         }
 
