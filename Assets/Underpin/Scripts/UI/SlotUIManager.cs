@@ -134,7 +134,7 @@ namespace Underpin.SlotMachine.UI
                             windowRect.anchorMin = new Vector2(0.5f, 0.5f);
                             windowRect.anchorMax = new Vector2(0.5f, 0.5f);
                             windowRect.pivot = new Vector2(0.5f, 0.5f);
-                            windowRect.sizeDelta = new Vector2(490f, 240f);
+                            windowRect.sizeDelta = new Vector2(490f, 190f);
                             windowRect.anchoredPosition = Vector2.zero;
                         }
 
@@ -156,7 +156,7 @@ namespace Underpin.SlotMachine.UI
                             columnRect.anchorMin = new Vector2(0.5f, 0.5f);
                             columnRect.anchorMax = new Vector2(0.5f, 0.5f);
                             columnRect.pivot = new Vector2(0.5f, 0.5f);
-                            columnRect.sizeDelta = new Vector2(110f, 240f);
+                            columnRect.sizeDelta = new Vector2(110f, 190f);
                             columnRect.anchoredPosition = new Vector2(reelX[i], 0f);
                             columnRect.localScale = Vector3.one;
                         }
