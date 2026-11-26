@@ -86,6 +86,7 @@ namespace Underpin.SlotMachine.Editor
             cam.backgroundColor = new Color(0.06f, 0.08f, 0.14f);
             cam.orthographic = true;
             cam.orthographicSize = 5f;
+            camGo.AddComponent<AudioListener>();
 
             // 2. EventSystem
             GameObject esGo = new GameObject("EventSystem");
