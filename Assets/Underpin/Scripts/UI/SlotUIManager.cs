@@ -240,7 +240,7 @@ namespace Underpin.SlotMachine.UI
 
         private static void EnsureSingleAudioListener()
         {
-            AudioListener[] listeners = FindObjectsOfType<AudioListener>();
+            AudioListener[] listeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
             AudioListener keeper = null;
             Camera mainCamera = Camera.main;
 
