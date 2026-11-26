@@ -56,6 +56,7 @@ namespace Underpin.SlotMachine.UI
             // Keep the HUD usable even if a scene is regenerated with bad transform data.
             transform.localScale = Vector3.one;
             EnsureSingleAudioListener();
+            ApplyVisualLayout();
 
             CanvasScaler scaler = GetComponent<CanvasScaler>();
             if (scaler != null)
@@ -85,6 +86,156 @@ namespace Underpin.SlotMachine.UI
             if (resetBalanceButton != null) resetBalanceButton.onClick.AddListener(() => OnResetBalanceClicked?.Invoke());
 
             CreateHowToPlayOverlay();
+        }
+
+        private void ApplyVisualLayout()
+        {
+            Transform background = transform.Find("Background");
+            Image backgroundImage = background != null ? background.GetComponent<Image>() : null;
+            if (backgroundImage != null)
+            {
+                backgroundImage.sprite = null;
+                backgroundImage.color = new Color(0.035f, 0.045f, 0.09f, 1f);
+            }
+
+            Transform machine = transform.Find("SlotMachineRoot");
+            if (machine != null)
+            {
+                RectTransform machineRect = machine.GetComponent<RectTransform>();
+                if (machineRect != null)
+                {
+                    machineRect.sizeDelta = new Vector2(900f, 700f);
+                    machineRect.anchoredPosition = new Vector2(0f, 38f);
+                }
+            }
+
+            Transform hud = transform.Find("HUD_Panel");
+            if (hud != null)
+            {
+                RectTransform hudRect = hud.GetComponent<RectTransform>();
+                if (hudRect != null)
+                {
+                    hudRect.anchorMin = new Vector2(0.5f, 0f);
+                    hudRect.anchorMax = new Vector2(0.5f, 0f);
+                    hudRect.pivot = new Vector2(0.5f, 0f);
+                    hudRect.sizeDelta = new Vector2(1200f, 230f);
+                    hudRect.anchoredPosition = Vector2.zero;
+                }
+
+                if (hud.Find("HUD_Backplate") == null)
+                {
+                    GameObject dock = new GameObject("HUD_Backplate", typeof(RectTransform), typeof(Image));
+                    dock.transform.SetParent(hud, false);
+                    dock.transform.SetAsFirstSibling();
+                    RectTransform dockRect = dock.GetComponent<RectTransform>();
+                    dockRect.anchorMin = new Vector2(0.5f, 0f);
+                    dockRect.anchorMax = new Vector2(0.5f, 0f);
+                    dockRect.pivot = new Vector2(0.5f, 0f);
+                    dockRect.sizeDelta = new Vector2(1160f, 145f);
+                    dockRect.anchoredPosition = new Vector2(0f, 34f);
+                    Image dockImage = dock.GetComponent<Image>();
+                    dockImage.color = new Color(0.035f, 0.05f, 0.105f, 0.96f);
+                    dockImage.raycastTarget = false;
+                }
+
+                SetChildRect(hud, "BalanceBox", new Vector2(-420f, 105f), new Vector2(190f, 92f));
+                SetChildRect(hud, "Btn_BetMinus", new Vector2(-245f, 105f), new Vector2(64f, 64f));
+                SetChildRect(hud, "BetBox", new Vector2(-130f, 105f), new Vector2(130f, 92f));
+                SetChildRect(hud, "Btn_BetPlus", new Vector2(-20f, 105f), new Vector2(64f, 64f));
+                SetChildRect(hud, "WinBox", new Vector2(145f, 105f), new Vector2(180f, 92f));
+                SetChildRect(hud, "Btn_Spin", new Vector2(365f, 105f), new Vector2(126f, 126f));
+                SetChildRect(hud, "Btn_AutoSpin", new Vector2(505f, 105f), new Vector2(100f, 64f));
+            }
+
+            PlaceTopButton(paytableButton, new Vector2(220f, -24f), new Vector2(160f, 54f), false);
+            PlaceTopButton(resetBalanceButton, new Vector2(-30f, -24f), new Vector2(130f, 54f), true);
+
+            Transform topBanner = transform.Find("TopBanner");
+            if (topBanner != null)
+            {
+                RectTransform bannerRect = topBanner.GetComponent<RectTransform>();
+                if (bannerRect != null)
+                {
+                    bannerRect.sizeDelta = new Vector2(760f, 70f);
+                    bannerRect.anchoredPosition = new Vector2(0f, -18f);
+                }
+            }
+
+            if (spinButton != null)
+            {
+                Image spinImage = spinButton.GetComponent<Image>();
+                if (spinImage != null)
+                {
+                    spinImage.sprite = CreateSpinButtonSprite();
+                    spinImage.color = Color.white;
+                    spinImage.preserveAspect = true;
+                    spinImage.type = Image.Type.Simple;
+                }
+
+                spinButton.transition = Selectable.Transition.ColorTint;
+                ColorBlock colors = spinButton.colors;
+                colors.normalColor = Color.white;
+                colors.highlightedColor = new Color(1f, 0.92f, 0.62f, 1f);
+                colors.pressedColor = new Color(0.78f, 0.62f, 0.3f, 1f);
+                colors.disabledColor = new Color(0.55f, 0.55f, 0.6f, 0.75f);
+                spinButton.colors = colors;
+
+                Text spinLabel = CreateOverlayText(spinButton.transform, "SPIN", 24, FontStyle.Bold,
+                    Color.white, Vector2.zero, new Vector2(112f, 112f));
+                spinLabel.name = "SpinActionLabel";
+                spinLabel.alignment = TextAnchor.MiddleCenter;
+            }
+        }
+
+        private static void SetChildRect(Transform parent, string childName, Vector2 position, Vector2 size)
+        {
+            Transform child = parent.Find(childName);
+            if (child == null) return;
+            RectTransform rect = child.GetComponent<RectTransform>();
+            if (rect == null) return;
+            rect.anchorMin = new Vector2(0.5f, 0f);
+            rect.anchorMax = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+        }
+
+        private static void PlaceTopButton(Button button, Vector2 position, Vector2 size, bool rightAligned)
+        {
+            if (button == null) return;
+            RectTransform rect = button.GetComponent<RectTransform>();
+            if (rect == null) return;
+            rect.anchorMin = new Vector2(rightAligned ? 1f : 0f, 1f);
+            rect.anchorMax = new Vector2(rightAligned ? 1f : 0f, 1f);
+            rect.pivot = new Vector2(rightAligned ? 1f : 0f, 1f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            ResizeTopButton(button, size);
+        }
+
+        private static Sprite CreateSpinButtonSprite()
+        {
+            const int size = 128;
+            Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            texture.name = "Runtime_SpinButton";
+            texture.filterMode = FilterMode.Bilinear;
+            Color clear = new Color(0f, 0f, 0f, 0f);
+            Color gold = new Color(1f, 0.68f, 0.12f, 1f);
+            Color darkGold = new Color(0.48f, 0.25f, 0.04f, 1f);
+            Color navy = new Color(0.12f, 0.16f, 0.34f, 1f);
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float dx = x - 63.5f;
+                float dy = y - 63.5f;
+                float radius = Mathf.Sqrt(dx * dx + dy * dy);
+                Color pixel = radius <= 62f && radius >= 54f ? darkGold :
+                    radius < 54f && radius >= 48f ? gold :
+                    radius < 48f ? navy : clear;
+                texture.SetPixel(x, y, pixel);
+            }
+            texture.Apply();
+            return Sprite.Create(texture, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), 128f);
         }
 
         private static void EnsureSingleAudioListener()
