@@ -31,7 +31,7 @@ namespace Underpin.SlotMachine.Core
         [Header("Wallet & Bet Settings")]
         [SerializeField] private int initialBalance = 1000;
         [SerializeField] private int[] betLevels = new int[] { 10, 20, 50, 100, 200, 500 };
-        [SerializeField] private int activePaylines = 5;
+        [SerializeField] private int activePaylines = 1; // Classic slot: centre horizontal payline only
 
         [Header("Timing Configuration")]
         [SerializeField] private float baseSpinDuration = 0.8f;
