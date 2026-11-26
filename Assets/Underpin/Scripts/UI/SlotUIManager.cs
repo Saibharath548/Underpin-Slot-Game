@@ -72,6 +72,10 @@ namespace Underpin.SlotMachine.UI
             ConfigureButtonFeedback(paytableButton, new Color(0.34f, 0.78f, 0.95f));
             ConfigureButtonFeedback(resetBalanceButton, new Color(0.95f, 0.55f, 0.35f));
 
+            // Keep the top utility controls readable at the reference resolution.
+            ResizeTopButton(paytableButton, new Vector2(160f, 54f));
+            ResizeTopButton(resetBalanceButton, new Vector2(130f, 54f));
+
             if (spinButton != null) spinButton.onClick.AddListener(() => OnSpinClicked?.Invoke());
             if (betMinusButton != null) betMinusButton.onClick.AddListener(() => OnBetMinusClicked?.Invoke());
             if (betPlusButton != null) betPlusButton.onClick.AddListener(() => OnBetPlusClicked?.Invoke());
@@ -80,6 +84,22 @@ namespace Underpin.SlotMachine.UI
             if (resetBalanceButton != null) resetBalanceButton.onClick.AddListener(() => OnResetBalanceClicked?.Invoke());
 
             CreateHowToPlayOverlay();
+        }
+
+        private static void ResizeTopButton(Button button, Vector2 size)
+        {
+            if (button == null) return;
+            RectTransform rect = button.GetComponent<RectTransform>();
+            if (rect != null) rect.sizeDelta = size;
+
+            Text label = button.GetComponentInChildren<Text>(true);
+            if (label != null)
+            {
+                label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                label.verticalOverflow = VerticalWrapMode.Truncate;
+                label.alignment = TextAnchor.MiddleCenter;
+                label.raycastTarget = false;
+            }
         }
 
         private void CreateHowToPlayOverlay()
@@ -179,7 +199,7 @@ namespace Underpin.SlotMachine.UI
             text.fontSize = fontSize;
             text.fontStyle = style;
             text.color = color;
-            text.alignment = fontSize >= 30 ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft;
+            text.alignment = fontSize >= 30 || parent.name.StartsWith("Btn_") ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
             text.lineSpacing = 1.15f;
