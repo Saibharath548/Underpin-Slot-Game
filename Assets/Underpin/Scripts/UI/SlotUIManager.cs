@@ -102,6 +102,9 @@ namespace Underpin.SlotMachine.UI
             if (keeper == null && mainCamera != null)
                 keeper = mainCamera.gameObject.AddComponent<AudioListener>();
 
+            if (keeper != null)
+                keeper.enabled = true;
+
             for (int i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] != null && listeners[i] != keeper)
