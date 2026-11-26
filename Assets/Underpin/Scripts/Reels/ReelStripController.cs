@@ -91,6 +91,11 @@ namespace Underpin.SlotMachine.Reels
                 {
                     GameObject go = new GameObject($"SymbolView_{symbolViews.Count}", typeof(RectTransform), typeof(Image), typeof(ReelSymbolView));
                     go.transform.SetParent(containerRect, false);
+                    RectTransform fallbackRect = go.GetComponent<RectTransform>();
+                    fallbackRect.anchorMin = new Vector2(0.5f, 0.5f);
+                    fallbackRect.anchorMax = new Vector2(0.5f, 0.5f);
+                    fallbackRect.pivot = new Vector2(0.5f, 0.5f);
+                    fallbackRect.sizeDelta = new Vector2(symbolHeight, symbolHeight);
                     view = go.GetComponent<ReelSymbolView>();
                 }
                 symbolViews.Add(view);
@@ -104,10 +109,9 @@ namespace Underpin.SlotMachine.Reels
             for (int i = 0; i < symbolViews.Count; i++)
             {
                 RectTransform symbolRect = symbolViews[i].RectTransform;
-                symbolRect.anchorMin = new Vector2(0.5f, 0.5f);
-                symbolRect.anchorMax = new Vector2(0.5f, 0.5f);
-                symbolRect.pivot = new Vector2(0.5f, 0.5f);
-                symbolRect.localScale = Vector3.one;
+
+                // Keep prefab/Inspector sizing, anchors, pivot and scale intact.
+                // Only the vertical position is owned by the reel animation.
 
                 float targetY;
                 if (i < visibleRowCount)
@@ -122,8 +126,7 @@ namespace Underpin.SlotMachine.Reels
                     if (bufferIndex % 2 == 1) targetY = -targetY;
                 }
 
-                symbolRect.anchoredPosition = new Vector2(0f, targetY);
-                symbolRect.sizeDelta = new Vector2(symbolHeight, symbolHeight);
+                symbolRect.anchoredPosition = new Vector2(symbolRect.anchoredPosition.x, targetY);
 
                 SymbolId initialSym = (rng != null && paytable != null) ? rng.GetRandomSymbol(paytable) : (SymbolId)(i % 4);
                 Sprite spr = spriteMap.ContainsKey(initialSym) ? spriteMap[initialSym] : null;
@@ -298,7 +301,8 @@ namespace Underpin.SlotMachine.Reels
                     baseY = (halfVisibleRows + bufferRing) * CellStep;
                     if (bufferIndex % 2 == 1) baseY = -baseY;
                 }
-                symbolViews[i].RectTransform.anchoredPosition = new Vector2(0f, baseY + offset);
+                RectTransform symbolRect = symbolViews[i].RectTransform;
+                symbolRect.anchoredPosition = new Vector2(symbolRect.anchoredPosition.x, baseY + offset);
             }
         }
 
