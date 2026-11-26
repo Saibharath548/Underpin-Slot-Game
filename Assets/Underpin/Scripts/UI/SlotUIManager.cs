@@ -104,8 +104,63 @@ namespace Underpin.SlotMachine.UI
                 RectTransform machineRect = machine.GetComponent<RectTransform>();
                 if (machineRect != null)
                 {
+                    machineRect.anchorMin = new Vector2(0.5f, 0.5f);
+                    machineRect.anchorMax = new Vector2(0.5f, 0.5f);
+                    machineRect.pivot = new Vector2(0.5f, 0.5f);
                     machineRect.sizeDelta = new Vector2(900f, 700f);
                     machineRect.anchoredPosition = new Vector2(0f, 38f);
+                    machineRect.localScale = Vector3.one;
+                }
+
+                Transform middleBox = machine.Find("MiddleBox");
+                if (middleBox != null)
+                {
+                    RectTransform middleRect = middleBox.GetComponent<RectTransform>();
+                    if (middleRect != null)
+                    {
+                        middleRect.anchorMin = new Vector2(0.5f, 0.5f);
+                        middleRect.anchorMax = new Vector2(0.5f, 0.5f);
+                        middleRect.pivot = new Vector2(0.5f, 0.5f);
+                        middleRect.sizeDelta = new Vector2(658f, 277f);
+                        middleRect.anchoredPosition = new Vector2(-42f, 12f);
+                    }
+
+                    Transform reelsWindow = middleBox.Find("ReelsMaskWindow");
+                    if (reelsWindow != null)
+                    {
+                        RectTransform windowRect = reelsWindow.GetComponent<RectTransform>();
+                        if (windowRect != null)
+                        {
+                            windowRect.anchorMin = new Vector2(0.5f, 0.5f);
+                            windowRect.anchorMax = new Vector2(0.5f, 0.5f);
+                            windowRect.pivot = new Vector2(0.5f, 0.5f);
+                            windowRect.sizeDelta = new Vector2(490f, 240f);
+                            windowRect.anchoredPosition = Vector2.zero;
+                        }
+
+                        // A transparent Graphic makes the clipping region explicit and reliable.
+                        Image maskGraphic = reelsWindow.GetComponent<Image>();
+                        if (maskGraphic == null) maskGraphic = reelsWindow.gameObject.AddComponent<Image>();
+                        maskGraphic.color = new Color(1f, 1f, 1f, 0f);
+                        maskGraphic.raycastTarget = false;
+                        if (reelsWindow.GetComponent<RectMask2D>() == null)
+                            reelsWindow.gameObject.AddComponent<RectMask2D>();
+
+                        float[] reelX = { -142f, 0f, 142f };
+                        for (int i = 0; i < 3; i++)
+                        {
+                            Transform column = reelsWindow.Find("ReelColumn_" + i);
+                            if (column == null) continue;
+                            RectTransform columnRect = column.GetComponent<RectTransform>();
+                            if (columnRect == null) continue;
+                            columnRect.anchorMin = new Vector2(0.5f, 0.5f);
+                            columnRect.anchorMax = new Vector2(0.5f, 0.5f);
+                            columnRect.pivot = new Vector2(0.5f, 0.5f);
+                            columnRect.sizeDelta = new Vector2(110f, 240f);
+                            columnRect.anchoredPosition = new Vector2(reelX[i], 0f);
+                            columnRect.localScale = Vector3.one;
+                        }
+                    }
                 }
             }
 
