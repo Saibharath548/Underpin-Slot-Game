@@ -39,7 +39,49 @@ namespace Underpin.SlotMachine.UI
             if (gambleButton != null)
                 gambleButton.onClick.AddListener(() => OnGambleClicked?.Invoke());
 
+            // The original button artwork already contains YES / NO lettering.
+            // The generated UI added COLLECT / DOUBLE UP labels on top of it.
+            // Remove that baked lettering by using clean, solid button faces.
+            ConfigureActionButton(collectButton, "COLLECT", new Color(0.62f, 0.39f, 0.08f, 1f));
+            ConfigureActionButton(gambleButton, "DOUBLE UP", new Color(0.62f, 0.39f, 0.08f, 1f));
+
+            Image dimImage = GetComponent<Image>();
+            if (dimImage != null)
+                dimImage.color = new Color(0.01f, 0.01f, 0.04f, 0.38f);
+
             HideImmediate();
+        }
+
+        private static void ConfigureActionButton(Button button, string label, Color faceColor)
+        {
+            if (button == null) return;
+
+            Image image = button.GetComponent<Image>();
+            if (image != null)
+            {
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.color = faceColor;
+            }
+
+            Text labelText = button.GetComponentInChildren<Text>(true);
+            if (labelText != null)
+            {
+                labelText.text = label;
+                labelText.fontSize = 20;
+                labelText.fontStyle = FontStyle.Bold;
+                labelText.alignment = TextAnchor.MiddleCenter;
+                labelText.horizontalOverflow = HorizontalWrapMode.Overflow;
+                labelText.verticalOverflow = VerticalWrapMode.Truncate;
+                labelText.raycastTarget = false;
+            }
+
+            ColorBlock colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1f, 0.9f, 0.62f, 1f);
+            colors.pressedColor = new Color(0.82f, 0.62f, 0.25f, 1f);
+            colors.fadeDuration = 0.12f;
+            button.colors = colors;
         }
 
         public void Show(string title, string amount, string subtitle, bool allowGamble = false)
