@@ -235,11 +235,11 @@ namespace Underpin.SlotMachine.Editor
             freeSpinsBadge.alignment = TextAnchor.MiddleCenter;
 
             // Info / Paytable Button
-            GameObject infoBtnGo = CreateButton("Btn_Info", canvasGo.transform, new Vector2(-540, 460), new Vector2(100, 50), null, null, "PAYTABLE");
+            GameObject infoBtnGo = CreateButton("Btn_Info", canvasGo.transform, new Vector2(-560, 460), new Vector2(160, 54), null, null, "PAYTABLE");
             Button infoBtn = infoBtnGo.GetComponent<Button>();
 
             // Reset Balance Button
-            GameObject resetBtnGo = CreateButton("Btn_Reset", canvasGo.transform, new Vector2(540, 460), new Vector2(100, 50), null, null, "RESET");
+            GameObject resetBtnGo = CreateButton("Btn_Reset", canvasGo.transform, new Vector2(560, 460), new Vector2(130, 54), null, null, "RESET");
             Button resetBtn = resetBtnGo.GetComponent<Button>();
 
             // 7. Modals
@@ -247,7 +247,7 @@ namespace Underpin.SlotMachine.Editor
             GameObject popupRoot = CreateUIObject("WinPopupModal", canvasGo.transform);
             SetStretch(popupRoot.GetComponent<RectTransform>());
             Image popupDim = popupRoot.AddComponent<Image>();
-            popupDim.color = new Color(0f, 0f, 0f, 0.75f);
+            popupDim.color = new Color(0.01f, 0.01f, 0.04f, 0.38f);
             CanvasGroup popupCg = popupRoot.AddComponent<CanvasGroup>();
 
             GameObject popupFrame = CreateUIObject("PopupFrame", popupRoot.transform);
@@ -285,7 +285,7 @@ namespace Underpin.SlotMachine.Editor
             GameObject paytableModalGo = CreateUIObject("PaytableModal", canvasGo.transform);
             SetStretch(paytableModalGo.GetComponent<RectTransform>());
             Image ptDim = paytableModalGo.AddComponent<Image>();
-            ptDim.color = new Color(0f, 0f, 0f, 0.85f);
+            ptDim.color = new Color(0.01f, 0.01f, 0.04f, 0.72f);
             CanvasGroup ptCg = paytableModalGo.AddComponent<CanvasGroup>();
 
             GameObject ptFrame = CreateUIObject("PaytableFrame", paytableModalGo.transform);
@@ -465,6 +465,9 @@ namespace Underpin.SlotMachine.Editor
             {
                 Text txt = CreateText("Label", btnGo.transform, Vector2.zero, size, label, 20, FontStyle.Bold, Color.white);
                 txt.alignment = TextAnchor.MiddleCenter;
+                txt.horizontalOverflow = HorizontalWrapMode.Overflow;
+                txt.verticalOverflow = VerticalWrapMode.Truncate;
+                txt.raycastTarget = false;
             }
 
             return btnGo;
