@@ -362,6 +362,7 @@ namespace Underpin.SlotMachine.Editor
             SetPrivateField(gameManager, "leverView", leverView);
             SetPrivateField(gameManager, "uiManager", uiManager);
             SetPrivateField(gameManager, "audioManager", audioManager);
+            SetPrivateField(gameManager, "activePaylines", 1);
 
             // Save Prefabs for modularity & evaluation requirements
             string prefabsDir = "Assets/Underpin/Prefabs";
