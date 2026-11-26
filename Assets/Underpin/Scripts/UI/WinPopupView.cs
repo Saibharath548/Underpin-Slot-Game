@@ -27,11 +27,13 @@ namespace Underpin.SlotMachine.UI
         public event Action OnGambleClicked;
 
         private Coroutine animCoroutine;
+        private Vector3 panelBaseScale = Vector3.one;
 
         private void Awake()
         {
             if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
             if (panelRect == null) panelRect = GetComponent<RectTransform>();
+            if (panelRect != null) panelBaseScale = panelRect.localScale;
 
             if (collectButton != null)
                 collectButton.onClick.AddListener(() => OnCollectClicked?.Invoke());
@@ -39,7 +41,49 @@ namespace Underpin.SlotMachine.UI
             if (gambleButton != null)
                 gambleButton.onClick.AddListener(() => OnGambleClicked?.Invoke());
 
+            // The original button artwork already contains YES / NO lettering.
+            // The generated UI added COLLECT / DOUBLE UP labels on top of it.
+            // Remove that baked lettering by using clean, solid button faces.
+            ConfigureActionButton(collectButton, "COLLECT", new Color(0.62f, 0.39f, 0.08f, 1f));
+            ConfigureActionButton(gambleButton, "DOUBLE UP", new Color(0.62f, 0.39f, 0.08f, 1f));
+
+            Image dimImage = GetComponent<Image>();
+            if (dimImage != null)
+                dimImage.color = new Color(0.01f, 0.01f, 0.04f, 0.38f);
+
             HideImmediate();
+        }
+
+        private static void ConfigureActionButton(Button button, string label, Color faceColor)
+        {
+            if (button == null) return;
+
+            Image image = button.GetComponent<Image>();
+            if (image != null)
+            {
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.color = faceColor;
+            }
+
+            Text labelText = button.GetComponentInChildren<Text>(true);
+            if (labelText != null)
+            {
+                labelText.text = label;
+                labelText.fontSize = 20;
+                labelText.fontStyle = FontStyle.Bold;
+                labelText.alignment = TextAnchor.MiddleCenter;
+                labelText.horizontalOverflow = HorizontalWrapMode.Overflow;
+                labelText.verticalOverflow = VerticalWrapMode.Truncate;
+                labelText.raycastTarget = false;
+            }
+
+            ColorBlock colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1f, 0.9f, 0.62f, 1f);
+            colors.pressedColor = new Color(0.82f, 0.62f, 0.25f, 1f);
+            colors.fadeDuration = 0.12f;
+            button.colors = colors;
         }
 
         public void Show(string title, string amount, string subtitle, bool allowGamble = false)
@@ -65,6 +109,7 @@ namespace Underpin.SlotMachine.UI
 
         public void HideImmediate()
         {
+            if (panelRect != null) panelRect.localScale = panelBaseScale;
             if (canvasGroup != null)
             {
                 canvasGroup.alpha = 0f;
@@ -94,12 +139,12 @@ namespace Underpin.SlotMachine.UI
 
                 // Elastic scale-pop: 0.3 -> 1.08 -> 1.0
                 float scale = EaseOutBack(t);
-                if (panelRect != null) panelRect.localScale = Vector3.one * scale;
+                if (panelRect != null) panelRect.localScale = panelBaseScale * scale;
 
                 yield return null;
             }
 
-            if (panelRect != null) panelRect.localScale = Vector3.one;
+            if (panelRect != null) panelRect.localScale = panelBaseScale;
             if (canvasGroup != null) canvasGroup.alpha = 1f;
             animCoroutine = null;
         }
@@ -114,7 +159,7 @@ namespace Underpin.SlotMachine.UI
                 elapsed += Time.deltaTime;
                 float t = elapsed / duration;
                 if (canvasGroup != null) canvasGroup.alpha = 1f - t;
-                if (panelRect != null) panelRect.localScale = Vector3.one * (1f - t * 0.3f);
+                if (panelRect != null) panelRect.localScale = panelBaseScale * (1f - t * 0.3f);
                 yield return null;
             }
 

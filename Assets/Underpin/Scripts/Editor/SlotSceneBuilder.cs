@@ -86,6 +86,7 @@ namespace Underpin.SlotMachine.Editor
             cam.backgroundColor = new Color(0.06f, 0.08f, 0.14f);
             cam.orthographic = true;
             cam.orthographicSize = 5f;
+            camGo.AddComponent<AudioListener>();
 
             // 2. EventSystem
             GameObject esGo = new GameObject("EventSystem");
@@ -95,6 +96,7 @@ namespace Underpin.SlotMachine.Editor
             // 3. Canvas
             GameObject canvasGo = new GameObject("SlotCanvas");
             Canvas canvas = canvasGo.AddComponent<Canvas>();
+            canvasGo.transform.localScale = Vector3.one;
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -138,7 +140,7 @@ namespace Underpin.SlotMachine.Editor
             // Reels Mask Window
             GameObject reelsWindowGo = CreateUIObject("ReelsMaskWindow", middleBoxGo.transform);
             RectTransform reelsWindowRect = reelsWindowGo.GetComponent<RectTransform>();
-            reelsWindowRect.sizeDelta = new Vector2(490, 240);
+            reelsWindowRect.sizeDelta = new Vector2(490, 190);
             reelsWindowRect.anchoredPosition = Vector2.zero;
             reelsWindowGo.AddComponent<RectMask2D>();
 
@@ -167,7 +169,7 @@ namespace Underpin.SlotMachine.Editor
             {
                 GameObject reelColGo = CreateUIObject($"ReelColumn_{r}", reelsWindowGo.transform);
                 RectTransform reelColRect = reelColGo.GetComponent<RectTransform>();
-                reelColRect.sizeDelta = new Vector2(110, 240);
+                reelColRect.sizeDelta = new Vector2(110, 190);
                 reelColRect.anchoredPosition = new Vector2(reelXPositions[r], 0);
 
                 ReelStripController reelCtrl = reelColGo.AddComponent<ReelStripController>();
@@ -234,11 +236,11 @@ namespace Underpin.SlotMachine.Editor
             freeSpinsBadge.alignment = TextAnchor.MiddleCenter;
 
             // Info / Paytable Button
-            GameObject infoBtnGo = CreateButton("Btn_Info", canvasGo.transform, new Vector2(-540, 460), new Vector2(100, 50), null, null, "PAYTABLE");
+            GameObject infoBtnGo = CreateButton("Btn_Info", canvasGo.transform, new Vector2(-560, 460), new Vector2(160, 54), null, null, "PAYTABLE");
             Button infoBtn = infoBtnGo.GetComponent<Button>();
 
             // Reset Balance Button
-            GameObject resetBtnGo = CreateButton("Btn_Reset", canvasGo.transform, new Vector2(540, 460), new Vector2(100, 50), null, null, "RESET");
+            GameObject resetBtnGo = CreateButton("Btn_Reset", canvasGo.transform, new Vector2(560, 460), new Vector2(130, 54), null, null, "RESET");
             Button resetBtn = resetBtnGo.GetComponent<Button>();
 
             // 7. Modals
@@ -246,7 +248,7 @@ namespace Underpin.SlotMachine.Editor
             GameObject popupRoot = CreateUIObject("WinPopupModal", canvasGo.transform);
             SetStretch(popupRoot.GetComponent<RectTransform>());
             Image popupDim = popupRoot.AddComponent<Image>();
-            popupDim.color = new Color(0f, 0f, 0f, 0.75f);
+            popupDim.color = new Color(0.01f, 0.01f, 0.04f, 0.38f);
             CanvasGroup popupCg = popupRoot.AddComponent<CanvasGroup>();
 
             GameObject popupFrame = CreateUIObject("PopupFrame", popupRoot.transform);
@@ -284,7 +286,7 @@ namespace Underpin.SlotMachine.Editor
             GameObject paytableModalGo = CreateUIObject("PaytableModal", canvasGo.transform);
             SetStretch(paytableModalGo.GetComponent<RectTransform>());
             Image ptDim = paytableModalGo.AddComponent<Image>();
-            ptDim.color = new Color(0f, 0f, 0f, 0.85f);
+            ptDim.color = new Color(0.01f, 0.01f, 0.04f, 0.72f);
             CanvasGroup ptCg = paytableModalGo.AddComponent<CanvasGroup>();
 
             GameObject ptFrame = CreateUIObject("PaytableFrame", paytableModalGo.transform);
@@ -360,6 +362,7 @@ namespace Underpin.SlotMachine.Editor
             SetPrivateField(gameManager, "leverView", leverView);
             SetPrivateField(gameManager, "uiManager", uiManager);
             SetPrivateField(gameManager, "audioManager", audioManager);
+            SetPrivateField(gameManager, "activePaylines", 1);
 
             // Save Prefabs for modularity & evaluation requirements
             string prefabsDir = "Assets/Underpin/Prefabs";
@@ -464,6 +467,9 @@ namespace Underpin.SlotMachine.Editor
             {
                 Text txt = CreateText("Label", btnGo.transform, Vector2.zero, size, label, 20, FontStyle.Bold, Color.white);
                 txt.alignment = TextAnchor.MiddleCenter;
+                txt.horizontalOverflow = HorizontalWrapMode.Overflow;
+                txt.verticalOverflow = VerticalWrapMode.Truncate;
+                txt.raycastTarget = false;
             }
 
             return btnGo;

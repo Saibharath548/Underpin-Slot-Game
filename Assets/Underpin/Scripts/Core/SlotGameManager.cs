@@ -31,7 +31,7 @@ namespace Underpin.SlotMachine.Core
         [Header("Wallet & Bet Settings")]
         [SerializeField] private int initialBalance = 1000;
         [SerializeField] private int[] betLevels = new int[] { 10, 20, 50, 100, 200, 500 };
-        [SerializeField] private int activePaylines = 5;
+        [SerializeField] private int activePaylines = 1; // Classic slot: centre horizontal payline only
 
         [Header("Timing Configuration")]
         [SerializeField] private float baseSpinDuration = 0.8f;
@@ -52,6 +52,7 @@ namespace Underpin.SlotMachine.Core
         private SymbolId[,] currentOutcomeGrid;
         private SpinResult lastSpinResult;
         private int reelsStoppedCount = 0;
+        private bool isInitialized = false;
 
         public int CurrentBalance => currentBalance;
         public int CurrentBet => betLevels[betIndex];
@@ -64,6 +65,11 @@ namespace Underpin.SlotMachine.Core
 
         public void InitializeGame()
         {
+            if (isInitialized)
+                return;
+
+            isInitialized = true;
+
             // Wallet persistence
             currentBalance = PlayerPrefs.GetInt("Underpin_Slot_Balance", initialBalance);
             if (currentBalance <= 0) currentBalance = initialBalance;
@@ -77,6 +83,34 @@ namespace Underpin.SlotMachine.Core
             {
                 paytableData = ScriptableObject.CreateInstance<PaytableData>();
                 paytableData.InitializeDefaults();
+            }
+
+            // Runtime-only reel data must be rebuilt when the scene loads.
+            // The previous scene builder initialized these objects in the Editor, but
+            // private runtime collections and sprite maps are not serialized by Unity.
+            var runtimeSpriteMap = new Dictionary<SymbolId, Sprite>();
+            foreach (SymbolConfig symbol in paytableData.Symbols)
+            {
+                if (symbol != null && symbol.Sprite != null)
+                    runtimeSpriteMap[symbol.Id] = symbol.Sprite;
+            }
+
+            if (reels == null || reels.Count != 3)
+            {
+                Debug.LogError("[SlotGameManager] Expected exactly 3 reel controllers. Check the SlotGameManager Inspector references.", this);
+            }
+            else
+            {
+                for (int i = 0; i < reels.Count; i++)
+                {
+                    if (reels[i] == null)
+                    {
+                        Debug.LogError($"[SlotGameManager] Reel {i} is not assigned.", this);
+                        continue;
+                    }
+
+                    reels[i].Initialize(i, paytableData, rngService, runtimeSpriteMap);
+                }
             }
 
             // Wire up UI events
@@ -106,6 +140,8 @@ namespace Underpin.SlotMachine.Core
             // Wire up Reel events
             for (int i = 0; i < reels.Count; i++)
             {
+                if (reels[i] == null) continue;
+                reels[i].OnReelStopped -= HandleReelStopped;
                 reels[i].OnReelStopped += HandleReelStopped;
             }
 

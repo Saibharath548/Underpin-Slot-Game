@@ -52,12 +52,61 @@ namespace Underpin.SlotMachine.UI
 
         private void Awake()
         {
+            EnsureSingleAudioListener();
+
+            ConfigureButtonFeedback(spinButton, new Color(1f, 0.78f, 0.24f));
+            ConfigureButtonFeedback(betMinusButton, new Color(0.34f, 0.78f, 0.95f));
+            ConfigureButtonFeedback(betPlusButton, new Color(0.34f, 0.78f, 0.95f));
+            ConfigureButtonFeedback(autoSpinButton, new Color(0.30f, 0.82f, 0.60f));
+            ConfigureButtonFeedback(paytableButton, new Color(0.34f, 0.78f, 0.95f));
+            ConfigureButtonFeedback(resetBalanceButton, new Color(0.95f, 0.55f, 0.35f));
+
             if (spinButton != null) spinButton.onClick.AddListener(() => OnSpinClicked?.Invoke());
             if (betMinusButton != null) betMinusButton.onClick.AddListener(() => OnBetMinusClicked?.Invoke());
             if (betPlusButton != null) betPlusButton.onClick.AddListener(() => OnBetPlusClicked?.Invoke());
             if (autoSpinButton != null) autoSpinButton.onClick.AddListener(() => OnAutoSpinClicked?.Invoke());
             if (paytableButton != null) paytableButton.onClick.AddListener(() => OnPaytableClicked?.Invoke());
             if (resetBalanceButton != null) resetBalanceButton.onClick.AddListener(() => OnResetBalanceClicked?.Invoke());
+
+        }
+
+        private static void EnsureSingleAudioListener()
+        {
+            AudioListener[] listeners = FindObjectsByType<AudioListener>();
+            AudioListener keeper = null;
+            Camera mainCamera = Camera.main;
+
+            if (mainCamera != null)
+                keeper = mainCamera.GetComponent<AudioListener>();
+
+            if (keeper == null && listeners.Length > 0)
+                keeper = listeners[0];
+
+            if (keeper == null && mainCamera != null)
+                keeper = mainCamera.gameObject.AddComponent<AudioListener>();
+
+            if (keeper != null)
+                keeper.enabled = true;
+
+            for (int i = 0; i < listeners.Length; i++)
+            {
+                if (listeners[i] != null && listeners[i] != keeper)
+                    listeners[i].enabled = false;
+            }
+        }
+
+        private static void ConfigureButtonFeedback(Button button, Color accent)
+        {
+            if (button == null) return;
+
+            ColorBlock colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = Color.Lerp(Color.white, accent, 0.22f);
+            colors.pressedColor = Color.Lerp(accent, Color.black, 0.12f);
+            colors.selectedColor = colors.highlightedColor;
+            colors.disabledColor = new Color(0.55f, 0.58f, 0.64f, 0.55f);
+            colors.fadeDuration = 0.12f;
+            button.colors = colors;
         }
 
         public void UpdateBalance(int balance)

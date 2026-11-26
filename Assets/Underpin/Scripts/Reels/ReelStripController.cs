@@ -57,6 +57,8 @@ namespace Underpin.SlotMachine.Reels
             this.rng = rngService;
             this.spriteMap = sprites;
 
+            // Symbol dimensions and spacing remain Inspector-controlled.
+
             if (containerRect == null)
             {
                 containerRect = GetComponent<RectTransform>();
@@ -89,19 +91,42 @@ namespace Underpin.SlotMachine.Reels
                 {
                     GameObject go = new GameObject($"SymbolView_{symbolViews.Count}", typeof(RectTransform), typeof(Image), typeof(ReelSymbolView));
                     go.transform.SetParent(containerRect, false);
+                    RectTransform fallbackRect = go.GetComponent<RectTransform>();
+                    fallbackRect.anchorMin = new Vector2(0.5f, 0.5f);
+                    fallbackRect.anchorMax = new Vector2(0.5f, 0.5f);
+                    fallbackRect.pivot = new Vector2(0.5f, 0.5f);
+                    fallbackRect.sizeDelta = new Vector2(symbolHeight, symbolHeight);
                     view = go.GetComponent<ReelSymbolView>();
                 }
                 symbolViews.Add(view);
             }
 
-            // Position symbols vertically centered around the window:
-            // Visible rows (0=Top, 1=Center, 2=Bottom) at Y = +CellStep, 0, -CellStep
-            // Buffer symbols at Y = +2*CellStep and -2*CellStep
+            // Keep exactly three symbols in the visible window and place the remaining
+            // views outside it as scroll buffers. Every view uses the same centered pivot.
+            visibleRowCount = Mathf.Max(1, visibleRowCount);
+            totalSymbolViews = Mathf.Max(visibleRowCount + 2, totalSymbolViews);
+            float halfVisibleRows = (visibleRowCount - 1) * 0.5f;
             for (int i = 0; i < symbolViews.Count; i++)
             {
-                float targetY = (1 - i) * CellStep;
-                symbolViews[i].RectTransform.anchoredPosition = new Vector2(0f, targetY);
-                symbolViews[i].RectTransform.sizeDelta = new Vector2(symbolHeight, symbolHeight);
+                RectTransform symbolRect = symbolViews[i].RectTransform;
+
+                // Keep prefab/Inspector sizing, anchors, pivot and scale intact.
+                // Only the vertical position is owned by the reel animation.
+
+                float targetY;
+                if (i < visibleRowCount)
+                {
+                    targetY = (halfVisibleRows - i) * CellStep;
+                }
+                else
+                {
+                    int bufferIndex = i - visibleRowCount;
+                    int bufferRing = 1 + bufferIndex / 2;
+                    targetY = (halfVisibleRows + bufferRing) * CellStep;
+                    if (bufferIndex % 2 == 1) targetY = -targetY;
+                }
+
+                symbolRect.anchoredPosition = new Vector2(symbolRect.anchoredPosition.x, targetY);
 
                 SymbolId initialSym = (rng != null && paytable != null) ? rng.GetRandomSymbol(paytable) : (SymbolId)(i % 4);
                 Sprite spr = spriteMap.ContainsKey(initialSym) ? spriteMap[initialSym] : null;
@@ -207,19 +232,17 @@ namespace Underpin.SlotMachine.Reels
         /// </summary>
         private IEnumerator SettleOutcomeRoutine()
         {
-            // Inject the 3 target symbols into the 3 visible views:
-            // View 0 = Top (+CellStep)
-            // View 1 = Center (0)
-            // View 2 = Bottom (-CellStep)
-            // View 3 = Top Buffer (+2*CellStep)
-            // View 4 = Bottom Buffer (-2*CellStep)
+            // Inject the final top, centre and bottom symbols into the three visible rows.
+            // Buffer views remain outside the clipped window.
             if (targetSymbols != null && targetSymbols.Length >= 3)
             {
-                SetViewSymbol(0, targetSymbols[0]); // Top
-                SetViewSymbol(1, targetSymbols[1]); // Center
-                SetViewSymbol(2, targetSymbols[2]); // Bottom
-                SetViewSymbol(3, (SymbolId)(((int)targetSymbols[0] + 1) % 4));
-                SetViewSymbol(4, (SymbolId)(((int)targetSymbols[2] + 2) % 4));
+                SetViewSymbol(0, targetSymbols[0]);
+                SetViewSymbol(1, targetSymbols[1]);
+                SetViewSymbol(2, targetSymbols[2]);
+                if (symbolViews.Count > 3)
+                    SetViewSymbol(3, (SymbolId)(((int)targetSymbols[0] + 1) % 4));
+                if (symbolViews.Count > 4)
+                    SetViewSymbol(4, (SymbolId)(((int)targetSymbols[2] + 2) % 4));
             }
 
             // Step 1: Overshoot downwards past the center rest position
@@ -263,15 +286,23 @@ namespace Underpin.SlotMachine.Reels
 
         private void ApplyReelRestPositions(float offset)
         {
-            // View 0 = Top (+CellStep)
-            // View 1 = Center (0)
-            // View 2 = Bottom (-CellStep)
-            // View 3 = Upper Buffer (+2*CellStep)
-            // View 4 = Lower Buffer (-2*CellStep)
-            float[] baseOffsets = new float[] { CellStep, 0f, -CellStep, 2f * CellStep, -2f * CellStep };
-            for (int i = 0; i < symbolViews.Count && i < baseOffsets.Length; i++)
+            float halfVisibleRows = (visibleRowCount - 1) * 0.5f;
+            for (int i = 0; i < symbolViews.Count; i++)
             {
-                symbolViews[i].RectTransform.anchoredPosition = new Vector2(0f, baseOffsets[i] + offset);
+                float baseY;
+                if (i < visibleRowCount)
+                {
+                    baseY = (halfVisibleRows - i) * CellStep;
+                }
+                else
+                {
+                    int bufferIndex = i - visibleRowCount;
+                    int bufferRing = 1 + bufferIndex / 2;
+                    baseY = (halfVisibleRows + bufferRing) * CellStep;
+                    if (bufferIndex % 2 == 1) baseY = -baseY;
+                }
+                RectTransform symbolRect = symbolViews[i].RectTransform;
+                symbolRect.anchoredPosition = new Vector2(symbolRect.anchoredPosition.x, baseY + offset);
             }
         }
 
